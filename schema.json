@@ -1,0 +1,22 @@
+{
+    "machine_lookup_table" : {
+        "primary_key": "machine_id",
+        "foreign_key": [["location_id", "office_location_table", "location_id"]]
+    },
+    "machine_table" : {
+        "primary_key": "machine_id"
+    },
+    "office_location_table" : {
+        "primary_key": "location_id"
+    },
+    "sensor_lookup_table" : {
+        "primary_key": "sensor_id",
+        "foreign_key": [["machine_id", "machine_lookup_table", "machine_id"]]
+    },
+    "sensor_readings" : {
+        "primary_key": "sensor_id"
+    },
+    "sensor_table" : {
+        "primary_key": "sensor_id"
+    }
+}
