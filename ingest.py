@@ -11,9 +11,9 @@ for dirpath, dirnames, filenames in os.walk(os.path.join(here, 'data')):
         if filename[-4:] != '.csv':
             continue
         df = pandas.read_csv(os.path.join(dirpath, filename))
-        df.columns = [column.lower() for column in df.columns]
+        df.columns = [column.lower().replace(' ', '_') for column in df.columns]
         tablename = filename.lower()[:-4].replace(' ', '_')
-        engine.execute('drop table if exists {0};'.format(tablename))
+        engine.execute('drop table if exists {0} cascade;'.format(tablename))
         df.to_sql(tablename, engine, index=False)
 
 
