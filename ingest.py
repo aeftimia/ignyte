@@ -33,6 +33,7 @@ for tablename, constraints in schema.items():
         sql = f'ALTER TABLE {tablename} ADD CONSTRAINT foreign_reference_{i} FOREIGN KEY ({foreign_key}) REFERENCES {foreign_tablename} ({primary_key});'.format(i)
         engine.execute(sql)
 
+engine.execute('ALTER TABLE sensor_readings ADD COLUMN created_at TIMESTAMP DEFAULT NOW()')
 
 with open(os.path.join(here, 'sql', 'proceedure.sql')) as f:
     engine.execute(f.read())
