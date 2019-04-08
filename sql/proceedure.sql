@@ -30,3 +30,35 @@ begin
     end loop;
 end;
 $$ LANGUAGE plpgsql;
+
+create or replace function master_refresh()
+returns void as $$
+DECLARE
+counter integer := 0;
+faulty_indicator integer;
+c record;
+location record;
+sensor record;
+begin
+    drop table master;
+    create table master as
+    select
+    sensor_value,
+    sensor_type,
+    machine_type,
+    office_location_table.location,
+    lat_,
+    long,
+    created_at
+    from
+    sensor_readings
+    inner join sensor_table using(sensor_id)
+    inner join sensor_lookup_table using(sensor_id)
+    inner join machine_table using(machine_id)
+    inner join machine_lookup_table using(machine_id)
+    inner join office_location_table using(location_id)
+    order by created_at desc
+    limit 10500
+    ;
+end;
+$$ LANGUAGE plpgsql;
