@@ -13,9 +13,6 @@
         "primary_key": "sensor_id",
         "foreign_key": [["machine_id", "machine_lookup_table", "machine_id"]]
     },
-    "sensor_readings" : {
-        "primary_key": "sensor_id"
-    },
     "sensor_table" : {
         "primary_key": "sensor_id"
     }

@@ -32,3 +32,7 @@ for tablename, constraints in schema.items():
     for i, (foreign_key, foreign_tablename, primary_key) in enumerate(constraints['foreign_key']):
         sql = f'ALTER TABLE {tablename} ADD CONSTRAINT foreign_reference_{i} FOREIGN KEY ({foreign_key}) REFERENCES {foreign_tablename} ({primary_key});'.format(i)
         engine.execute(sql)
+
+
+with open(os.path.join(here, 'sql', 'proceedure.sql')) as f:
+    engine.execute(f.read())
