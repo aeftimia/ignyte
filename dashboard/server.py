@@ -16,10 +16,15 @@ PORT_NUMBER = 8080
 
 def format_popup(readings):
     ret = '<ul>\n'
+    abnormal = False
     for key, value in readings.items():
-        ret += f'<li>{key}: {value}</li>\n'
+        item = f'{key}: {value}'
+        if value > 0.5:
+            abnormal = True
+            item = f'<font color="red">{item}</font>'
+        ret += f'<li>{item}</li>\n'
     ret += '</ul>'
-    return ret
+    return ret, abnormal
 
 class myHandler(BaseHTTPRequestHandler):
     
@@ -32,7 +37,7 @@ class myHandler(BaseHTTPRequestHandler):
         records = []
         for sensor_id, group in pandas.read_sql('select * from master order by created_at asc;', engine).drop_duplicates('sensor_id').groupby('machine_id'):
             record = json.loads(group.iloc[0].to_json())
-            record['reading'] = format_popup(dict(zip(group.sensor_type, group.sensor_value)))
+            record['reading'], record['abnormal'] = format_popup(dict(zip(group.sensor_type, group.sensor_value)))
             record.pop('sensor_type')
             record.pop('sensor_value')
             records.append(record)
