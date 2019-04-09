@@ -1,0 +1,3 @@
+[submodule "dashboard/c3"]
+	path = dashboard/c3
+	url = https://github.com/c3js/c3.git
