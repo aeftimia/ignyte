@@ -19,7 +19,8 @@ def format_popup(machines):
     any_abnormal = False
     for machine, readings in machines:
         abnormal = False
-        machine = f'{machine}'
+        machine_type = readings.machine_type.iloc[0]
+        machine = f'{machine_type}: {machine}'
         data = ''
         for key, value in zip(readings.sensor_type, readings.sensor_value):
             item = f'{key}: {value:.2f}'
