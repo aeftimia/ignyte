@@ -20,6 +20,9 @@ class myHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type','text/html')
         self.end_headers()
         # Send the html message
+        records = []
+        for sensor_id, group in pandas.read_sql('select * from master order by created_at asc;', engine).groupby('sensor_id'):
+            print(next(group.iterrows())[1])
         with open(os.path.join(here, 'map.html'), 'r') as f:
             response = f.read()
         self.wfile.write(response.encode())

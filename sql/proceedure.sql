@@ -43,6 +43,7 @@ begin
     drop table master;
     create table master as
     select
+    sensor_id,
     sensor_value,
     sensor_type,
     machine_type,
