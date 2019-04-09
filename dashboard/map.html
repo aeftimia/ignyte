@@ -20,21 +20,22 @@
 
             var readings = {readings};
 
-var map = L.map('map').setView([-41.3058, 174.82082], 8);
+var map = L.map('map');//.setView([-41.3058, 174.82082], 8);
 mapLink = 
     '<a href="http://openstreetmap.org">OpenStreetMap</a>';
-L.tileLayer(
+var group = L.tileLayer(
     'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; ' + mapLink + ' Contributors',
         maxZoom: 18,
     }).addTo(map);
 
+markers = []
 for (var i = 0; i < readings.length; i++) {
-    marker = new L.marker([readings[i][1],readings[i][2]])
-        .bindPopup(readings[i][0])
-        .addTo(map);
+    markers.push(new L.marker([readings[i].lat_,readings[i].long])
+        .bindPopup(readings[i].reading));
 }
-
+var group = new L.featureGroup(markers).addTo(map);
+map.fitBounds(group.getBounds().pad(0.1));
         </script>
     </body>
 </html>

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import json
 import os
 import pandas
 import sqlalchemy
@@ -12,6 +13,14 @@ PORT_NUMBER = 8080
 
 #This class will handles any incoming request from
 #the browser 
+
+def format_popup(readings):
+    ret = '<ul>\n'
+    for key, value in readings.items():
+        ret += f'<li>{key}: {value}</li>\n'
+    ret += '</ul>'
+    return ret
+
 class myHandler(BaseHTTPRequestHandler):
     
     #Handler for the GET requests
@@ -21,11 +30,15 @@ class myHandler(BaseHTTPRequestHandler):
         self.end_headers()
         # Send the html message
         records = []
-        for sensor_id, group in pandas.read_sql('select * from master order by created_at asc;', engine).groupby('sensor_id'):
-            print(next(group.iterrows())[1])
+        for sensor_id, group in pandas.read_sql('select * from master order by created_at asc;', engine).drop_duplicates('sensor_id').groupby('machine_id'):
+            record = json.loads(group.iloc[0].to_json())
+            record['reading'] = format_popup(dict(zip(group.sensor_type, group.sensor_value)))
+            record.pop('sensor_type')
+            record.pop('sensor_value')
+            records.append(record)
         with open(os.path.join(here, 'map.html'), 'r') as f:
             response = f.read()
-        self.wfile.write(response.encode())
+        self.wfile.write(macro_expand(response, readings=json.dumps(records)).encode())
         return
 
 try:

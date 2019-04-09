@@ -44,6 +44,7 @@ begin
     create table master as
     select
     sensor_id,
+    machine_table.machine_id,
     sensor_value,
     sensor_type,
     machine_type,
