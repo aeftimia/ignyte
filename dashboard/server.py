@@ -40,11 +40,16 @@ class myHandler(BaseHTTPRequestHandler):
     
     #Handler for the GET requests
     def do_GET(self):
-        print(urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query))
         self.send_response(200)
         self.send_header('Content-type','text/html')
         self.end_headers()
         # Send the html message
+        query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        if not query:
+            return self.send_map()
+        return self.send_chart()
+
+    def send_chart(self):
         records = []
         for location, group in pandas.read_sql('select * from master order by created_at desc;', engine).drop_duplicates('sensor_id').groupby('location'):
             record = json.loads(group.iloc[0].to_json())
@@ -56,7 +61,20 @@ class myHandler(BaseHTTPRequestHandler):
         with open(os.path.join(here, 'map.html'), 'r') as f:
             response = f.read()
         self.wfile.write(macro_expand(response, readings=json.dumps(records)).encode())
-        return
+
+
+    def send_map(self):
+        records = []
+        for location, group in pandas.read_sql('select * from master order by created_at desc;', engine).drop_duplicates('sensor_id').groupby('location'):
+            record = json.loads(group.iloc[0].to_json())
+            record['reading'], record['abnormal'] = format_popup(group.groupby('machine_id'))
+            record['reading'] = f'{location}<br>\n' + record['reading']
+            record.pop('sensor_type')
+            record.pop('sensor_value')
+            records.append(record)
+        with open(os.path.join(here, 'map.html'), 'r') as f:
+            response = f.read()
+        self.wfile.write(macro_expand(response, readings=json.dumps(records)).encode())
 
 try:
     #Create a web server and define the handler to manage the
