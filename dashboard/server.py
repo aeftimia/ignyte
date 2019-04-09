@@ -14,11 +14,12 @@ PORT_NUMBER = 8080
 #This class will handles any incoming request from
 #the browser 
 
-def format_popup(readings):
-    ret = '<ul>\n'
+def format_popup(machine_id, location, readings):
+    ret = f'{location}<br>Machine: {machine_id}\n'
+    ret += '<ul>\n'
     abnormal = False
     for key, value in readings.items():
-        item = f'{key}: {value}'
+        item = f'{key}: {value:.2f}'
         if value > 0.5:
             abnormal = True
             item = f'<font color="red">{item}</font>'
@@ -35,9 +36,11 @@ class myHandler(BaseHTTPRequestHandler):
         self.end_headers()
         # Send the html message
         records = []
-        for sensor_id, group in pandas.read_sql('select * from master order by created_at asc;', engine).drop_duplicates('sensor_id').groupby('machine_id'):
+        for sensor_id, group in pandas.read_sql('select * from master order by created_at desc;', engine).drop_duplicates('sensor_id').groupby('machine_id'):
             record = json.loads(group.iloc[0].to_json())
-            record['reading'], record['abnormal'] = format_popup(dict(zip(group.sensor_type, group.sensor_value)))
+            record['reading'], record['abnormal'] = format_popup(record.pop('machine_id'),
+                    record.pop('location'),
+                    dict(zip(group.sensor_type, group.sensor_value)))
             record.pop('sensor_type')
             record.pop('sensor_value')
             records.append(record)
