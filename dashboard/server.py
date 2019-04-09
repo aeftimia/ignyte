@@ -3,6 +3,7 @@ import json
 import os
 import pandas
 import sqlalchemy
+import urllib.parse
 
 from http.server import BaseHTTPRequestHandler,HTTPServer
 from utils import macro_expand
@@ -39,6 +40,7 @@ class myHandler(BaseHTTPRequestHandler):
     
     #Handler for the GET requests
     def do_GET(self):
+        print(urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query))
         self.send_response(200)
         self.send_header('Content-type','text/html')
         self.end_headers()
