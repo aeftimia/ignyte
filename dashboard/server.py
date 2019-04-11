@@ -8,14 +8,13 @@ import urllib.parse
 import flask
 import random
 
-from base64 import b64encode
-from flask import Flask, session, redirect, url_for, request, render_template
+from flask import Flask, redirect, url_for, request, render_template, send_from_directory
 
 engine = sqlalchemy.create_engine('postgresql+psycopg2://aeftimia@localhost/ignyte')
 here = os.path.dirname(os.path.realpath(__file__))
 PORT_NUMBER = 8080
 
-app = Flask(__name__)
+app = Flask(__name__,  static_url_path='')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or \
     'e5ac358c-f0bf-11e5-9e39-d3b532c10a28'
 
@@ -58,7 +57,6 @@ def executive():
     data = pandas.read_sql('select * from master order by created_at, location desc;', engine)
     data['abnormal'] = data.sensor_value.map(is_abmormal)
     x = ['x',] + data.created_at.apply(lambda x: x.strftime('%B %d, %Y, %r')).values.tolist()
-    print(x)
     columns = [x]
     for location, group in data.groupby('location'):
         column = [location,] + group.groupby('created_at').abnormal.agg('mean').values.tolist()
@@ -75,9 +73,11 @@ def operations():
         record.pop('sensor_type')
         record.pop('sensor_value')
         records.append(record)
-    print(json.dumps(records))
     return render_template('map.html', readings=json.dumps(records))
 
+@app.route('/c3/<path:path>')
+def send_c3(path):
+    return send_from_directory('c3', path)
 
 if __name__ == '__main__':
     app.run()
