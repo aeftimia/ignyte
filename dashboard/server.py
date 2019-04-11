@@ -5,12 +5,19 @@ import pandas
 import sqlalchemy
 import urllib.parse
 
-from http.server import BaseHTTPRequestHandler,HTTPServer
-from utils import macro_expand
+import flask
+import random
+
+from base64 import b64encode
+from flask import Flask, session, redirect, url_for, request, render_template
 
 engine = sqlalchemy.create_engine('postgresql+psycopg2://aeftimia@localhost/ignyte')
 here = os.path.dirname(os.path.realpath(__file__))
 PORT_NUMBER = 8080
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or \
+    'e5ac358c-f0bf-11e5-9e39-d3b532c10a28'
 
 #This class will handles any incoming request from
 #the browser 
@@ -39,55 +46,38 @@ def format_popup(machines):
     ret += '</ul>'
     return ret, any_abnormal
 
-class myHandler(BaseHTTPRequestHandler):
-    
-    #Handler for the GET requests
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type','text/html')
-        self.end_headers()
-        # Send the html message
-        query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
-        if not query:
-            return self.send_map()
-        return self.send_chart()
+@app.route('/')
+def index():
+    if 'executive' in request.args:
+        return redirect(url_for('executive'))
+    return redirect(url_for('operations'))
 
-    def send_chart(self):
-        records = []
-        data = pandas.read_sql('select * from master order by created_at, location desc;', engine)
-        data['abnormal'] = data.sensor_value.map(is_abmormal)
-        x = ['x',] + data.created_at.apply(lambda x: x.strftime('%B %d, %Y, %r')).values.tolist()
-        print(x)
-        columns = [x]
-        for location, group in data.groupby('location'):
-            column = [location,] + group.groupby('created_at').abnormal.agg('mean').values.tolist()
-            columns.append(column)
-        with open(os.path.join(here, 'chart.html'), 'r') as f:
-            response = f.read()
-        self.wfile.write(response.encode())#, columns=json.dumps(columns)).encode())
+@app.route('/executive')
+def executive():
+    records = []
+    data = pandas.read_sql('select * from master order by created_at, location desc;', engine)
+    data['abnormal'] = data.sensor_value.map(is_abmormal)
+    x = ['x',] + data.created_at.apply(lambda x: x.strftime('%B %d, %Y, %r')).values.tolist()
+    print(x)
+    columns = [x]
+    for location, group in data.groupby('location'):
+        column = [location,] + group.groupby('created_at').abnormal.agg('mean').values.tolist()
+        columns.append(column)
+    return render_template('chart.html')
+
+@app.route('/operations')
+def operations():
+    records = []
+    for location, group in pandas.read_sql('select * from master order by created_at desc;', engine).drop_duplicates('sensor_id').groupby('location'):
+        record = json.loads(group.iloc[0].to_json())
+        record['reading'], record['abnormal'] = format_popup(group.groupby('machine_id'))
+        record['reading'] = f'{location}<br>\n' + record['reading']
+        record.pop('sensor_type')
+        record.pop('sensor_value')
+        records.append(record)
+    print(json.dumps(records))
+    return render_template('map.html', readings=json.dumps(records))
 
 
-    def send_map(self):
-        records = []
-        for location, group in pandas.read_sql('select * from master order by created_at desc;', engine).drop_duplicates('sensor_id').groupby('location'):
-            record = json.loads(group.iloc[0].to_json())
-            record['reading'], record['abnormal'] = format_popup(group.groupby('machine_id'))
-            record['reading'] = f'{location}<br>\n' + record['reading']
-            record.pop('sensor_type')
-            record.pop('sensor_value')
-            records.append(record)
-        with open(os.path.join(here, 'map.html'), 'r') as f:
-            response = f.read()
-        self.wfile.write(macro_expand(response, readings=json.dumps(records)).encode())
-
-try:
-    #Create a web server and define the handler to manage the
-    #incoming request
-    server = HTTPServer(('', PORT_NUMBER), myHandler)
-
-    #Wait forever for incoming htto requests
-    server.serve_forever()
-
-except KeyboardInterrupt:
-    print('^C received, shutting down the web server')
-    server.socket.close()
+if __name__ == '__main__':
+    app.run()

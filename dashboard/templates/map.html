@@ -9,17 +9,12 @@
                                    />
     </head>
     <body>
-
         <div id="map" style="width: 1200; height: 800px"></div>
-
         <script
             src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js">
         </script>
-
         <script>
-
-            var readings = {readings};
-
+            var readings = {{ readings }};
 var map = L.map('map');//.setView([-41.3058, 174.82082], 8);
 mapLink = 
     '<a href="http://openstreetmap.org">OpenStreetMap</a>';
