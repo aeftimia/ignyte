@@ -8,7 +8,7 @@ import urllib.parse
 import flask
 import random
 
-from flask import Flask, redirect, url_for, request, render_template, send_from_directory
+from flask import Flask, Markup, redirect, url_for, request, render_template, send_from_directory
 
 engine = sqlalchemy.create_engine('postgresql+psycopg2://aeftimia@localhost/ignyte')
 here = os.path.dirname(os.path.realpath(__file__))
@@ -73,7 +73,7 @@ def operations():
         record.pop('sensor_type')
         record.pop('sensor_value')
         records.append(record)
-    return render_template('map.html', readings=json.dumps(records))
+    return render_template('map.html', readings=Markup(json.dumps(records)))
 
 @app.route('/c3/<path:path>')
 def send_c3(path):
