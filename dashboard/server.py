@@ -56,12 +56,12 @@ def executive():
     records = []
     data = pandas.read_sql('select * from master order by created_at, location desc;', engine)
     data['abnormal'] = data.sensor_value.map(is_abmormal)
-    x = ['x',] + data.created_at.apply(lambda x: x.strftime('%B %d, %Y, %r')).values.tolist()
+    x = ['x',] + data.created_at.apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S')).unique().tolist()
     columns = [x]
     for location, group in data.groupby('location'):
         column = [location,] + group.groupby('created_at').abnormal.agg('mean').values.tolist()
         columns.append(column)
-    return render_template('chart.html')
+    return render_template('chart.html', columns=Markup(json.dumps(columns)))
 
 @app.route('/operations')
 def operations():
