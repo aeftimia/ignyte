@@ -1,5 +1,8 @@
 # Setup
 
+## Dependencies
+Make sure you have a postgres client, python3, and git lfs. git lfs pull the data files.
+
 ## Database
 Make sure to have a recent installation of postgres running. Pick a postgres username, password, and database for working with sensor data, and create the associated username database on the postgres server. Make sure the chosen user has the ability to read, write, create, and drop new tables and functions.
 
