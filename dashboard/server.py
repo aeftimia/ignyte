@@ -62,7 +62,7 @@ def executive():
     x = ['x',] + data.time_string.unique().tolist()
     columns = [x]
     for location, group in data.groupby('location'):
-        column = [location,] + group.groupby('time_string').abnormal.agg('mean').values.tolist()
+        column = [location,] + (100 * group.groupby('time_string').abnormal.agg('mean').values).tolist()
         columns.append(column)
     return render_template('chart.html', columns=Markup(json.dumps(columns)))
 
