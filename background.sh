@@ -1,2 +1,2 @@
 bash refresh_master.sh &
-bash sesnsor_reading.sh &
+bash sensor_reading.sh &
