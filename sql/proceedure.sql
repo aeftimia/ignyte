@@ -53,7 +53,7 @@ c record;
 location record;
 sensor record;
 begin
-    drop table master;
+    drop table if exists master;
     create table master as
     select
     sensor_id,
