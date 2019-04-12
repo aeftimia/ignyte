@@ -23,7 +23,7 @@ pip install -r requirements.txt
 ```
 
 ## Load and Collect Data
-`python ingest.py && bash background.sh > /dev/null`
+`python ingest.py && bash background.sh > /dev/null &`
 
 # Start Server
 `python dashboard/server.py`
