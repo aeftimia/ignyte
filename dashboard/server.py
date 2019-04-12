@@ -20,9 +20,6 @@ app = Flask(__name__,  static_url_path='')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or \
     'e5ac358c-f0bf-11e5-9e39-d3b532c10a28'
 
-#This class will handles any incoming request from
-#the browser 
-
 def is_abmormal(value):
     return value > 0.5
 
