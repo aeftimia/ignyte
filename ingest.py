@@ -3,7 +3,7 @@ import os
 import pandas
 import sqlalchemy
 
-engine = sqlalchemy.create_engine('postgresql+psycopg2://aeftimia@localhost/ignyte')
+engine = sqlalchemy.create_engine('postgresql+psycopg2://localhost/ignyte')
 
 here = os.path.dirname(os.path.realpath(__file__))
 for dirpath, dirnames, filenames in os.walk(os.path.join(here, 'data')):
