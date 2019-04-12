@@ -2,8 +2,12 @@ import json
 import os
 import pandas
 import sqlalchemy
+import urllib.parse
 
-engine = sqlalchemy.create_engine('postgresql+psycopg2://localhost/ignyte')
+username = os.environ['ignyte_db_username']
+password = urllib.parse.quote(os.environ['ignyte_db_password'])
+db = urllib.parse.quote(os.environ['ignyte_db'])
+engine = sqlalchemy.create_engine(f'postgresql+psycopg2://{username}:{password}@localhost/{db}')
 
 here = os.path.dirname(os.path.realpath(__file__))
 for dirpath, dirnames, filenames in os.walk(os.path.join(here, 'data')):
