@@ -23,6 +23,7 @@ pip install -r requirements.txt
 ```
 
 ## Load and Collect Data
+`git lfs pull`
 `python ingest.py && bash background.sh > /dev/null &`
 
 # Start Server
