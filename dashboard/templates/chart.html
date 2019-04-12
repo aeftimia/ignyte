@@ -17,6 +17,7 @@
             var chart = c3.generate({
                 data: {
                     x: 'x',
+                    y: 'y',
                     xFormat: '%Y-%m-%d %H:%M:%S',
                     columns: {{ columns }}
                 },
@@ -29,6 +30,9 @@
                         tick: {
                             format: '%H:%M:%S'
                         }
+                    },
+                    y: {
+                        label: 'Percent Malfunctioning'
                     }
                 }
             });
