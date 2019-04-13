@@ -75,9 +75,9 @@ def operations():
         records.append(record)
     return render_template('map.html', readings=Markup(json.dumps(records)))
 
-@app.route('/c3/<path:path>')
-def send_c3(path):
-    return send_from_directory('c3', path)
+@app.route('/static/<path:path>')
+def send_local(path):
+    return send_from_directory('static', path)
 
 if __name__ == '__main__':
     app.run()
